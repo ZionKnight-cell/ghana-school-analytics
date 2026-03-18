@@ -1,0 +1,93 @@
+---
+title: "Ghana Education Analytics Report"
+author: "Samuel Mintah"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+ghana <- read_csv("../data/processed/ghana_education_clean.csv")
+```
+
+## Overview
+
+This report explores Ghana's education trends from 2000 to 2023 using
+data from the World Bank Education Statistics database.
+
+## Enrollment Trends
+
+Primary enrollment has grown significantly over the past two decades,
+while secondary enrollment remains comparatively low.
+```{r enrollment-chart}
+ghana %>%
+  select(year, enrollment_primary, enrollment_secondary) %>%
+  pivot_longer(-year, names_to = "level", values_to = "enrollment") %>%
+  mutate(level = recode(level,
+    "enrollment_primary"   = "Primary",
+    "enrollment_secondary" = "Secondary")) %>%
+  ggplot(aes(x = year, y = enrollment, colour = level)) +
+  geom_line(linewidth = 1.2) + geom_point(size = 2) +
+  labs(title = "Ghana School Enrollment Rates (2000–2023)",
+       x = "Year", y = "Enrollment Rate (%)", colour = "Level",
+       caption = "Source: World Bank WDI") +
+  theme_minimal() + theme(legend.position = "bottom")
+```
+
+## Gender Gap
+```{r gender-chart}
+ghana %>%
+  select(year, enrollment_primary_f, enrollment_primary_m) %>%
+  pivot_longer(-year, names_to = "gender", values_to = "enrollment") %>%
+  mutate(gender = recode(gender,
+    "enrollment_primary_f" = "Female",
+    "enrollment_primary_m" = "Male")) %>%
+  ggplot(aes(x = year, y = enrollment, colour = gender)) +
+  geom_line(linewidth = 1.2) + geom_point(size = 2) +
+  scale_colour_manual(values = c("Female" = "#E91E8C", "Male" = "#1E90FF")) +
+  labs(title = "Gender Gap in Primary Enrollment — Ghana",
+       x = "Year", y = "Enrollment Rate (%)", colour = "Gender",
+       caption = "Source: World Bank WDI") +
+  theme_minimal() + theme(legend.position = "bottom")
+```
+
+## Out-of-School Children
+```{r oos-chart}
+ghana %>%
+  filter(!is.nan(out_of_school)) %>%
+  ggplot(aes(x = year, y = out_of_school)) +
+  geom_col(fill = "#E74C3C", alpha = 0.8) +
+  labs(title = "Out-of-School Children Rate — Ghana",
+       x = "Year", y = "Out-of-School Rate (%)",
+       caption = "Source: World Bank WDI") +
+  theme_minimal()
+```
+
+## Pupil-Teacher Ratio
+```{r ptr-chart}
+ghana %>%
+  filter(!is.nan(pupil_teacher_ratio)) %>%
+  ggplot(aes(x = year, y = pupil_teacher_ratio)) +
+  geom_line(linewidth = 1.2, colour = "#2ECC71") +
+  geom_hline(yintercept = 40, linetype = "dashed", colour = "red") +
+  annotate("text", x = 2001, y = 41, label = "UNESCO threshold (40)",
+           colour = "red", size = 3) +
+  labs(title = "Pupil-Teacher Ratio — Ghana Primary Schools",
+       x = "Year", y = "Pupils per Teacher",
+       caption = "Source: World Bank WDI") +
+  theme_minimal()
+```
+
+## Key Findings
+
+- Primary enrollment has improved from **`r round(ghana$enrollment_primary[1], 1)`%** 
+in 2000 to over **90%** in recent years
+- A persistent gender gap exists, with boys consistently enrolled 
+at higher rates than girls
+- Out-of-school rates have declined but remain a challenge
+- Pupil-teacher ratios have stayed near the UNESCO recommended threshold of 40
