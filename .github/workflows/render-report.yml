@@ -10,9 +10,6 @@ permissions:
 
 jobs:
   render:
-
-jobs:
-  render:
     runs-on: ubuntu-latest
 
     steps:
