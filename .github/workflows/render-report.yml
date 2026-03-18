@@ -21,7 +21,8 @@ jobs:
 
       - name: Install R packages
         run: |
-          install.packages(c("tidyverse", "rmarkdown", "knitr", "WDI"))
+          install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
+          pak::pak(c("tidyverse", "rmarkdown", "knitr", "WDI"))
         shell: Rscript {0}
 
       - name: Render report
