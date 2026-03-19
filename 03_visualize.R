@@ -144,3 +144,11 @@ ggsave("outputs/03_out_of_school.png",      p3, width = 8, height = 5, dpi = 150
 ggsave("outputs/04_pupil_teacher_ratio.png",p4, width = 8, height = 5, dpi = 150)
 
 message("✅ All charts saved to outputs/")
+
+# ── Chart 5: West Africa Regional Comparison ─────────────────────────────
+library(ghanaedur)
+
+wa_data <- get_west_africa_education()
+p5 <- plot_regional_comparison(wa_data)
+p5
+ggsave("outputs/05_regional_comparison.png", p5, width = 8, height = 5, dpi = 150)
